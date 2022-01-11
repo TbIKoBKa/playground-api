@@ -29,8 +29,8 @@ export class UserController {
 
     // ================================================================================================================
 
-    @Post('/login')
-    @HttpCode(HttpStatus.CREATED)
+    @Get('/login')
+    @HttpCode(HttpStatus.OK)
     async login(@Body() body: UserLoginInput): Promise<User | null> {
         const user = await this.userService.findOneByCredentials(body);
 
