@@ -15,8 +15,8 @@ export class UserService {
 
     // ================================================================================================================
 
-    async createOne({ username, password }: UserRegisterInput): Promise<User> {
-        const newUser = new this.userModel({ username, password: decodePassword(password) });
+    async createOne({ login, password }: UserRegisterInput): Promise<User> {
+        const newUser = new this.userModel({ login, password: decodePassword(password) });
 
         return await newUser.save();
     }
@@ -37,8 +37,8 @@ export class UserService {
 
     // ================================================================================================================
 
-    async findOneByCredentials({ username, password }: UserLoginInput): Promise<User | null> {
-        const user = await this.userModel.findOne({ username, password: decodePassword(password) });
+    async findOneByCredentials({ login, password }: UserLoginInput): Promise<User | null> {
+        const user = await this.userModel.findOne({ login, password: decodePassword(password) });
 
         return user;
     }

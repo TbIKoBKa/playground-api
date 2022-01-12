@@ -9,6 +9,7 @@ import {
     Body,
     BadRequestException,
     Param,
+    Query,
 } from '@nestjs/common';
 
 // Entities
@@ -18,7 +19,7 @@ import { User } from './user.entity';
 import { UserService } from './user.service';
 
 // Instruments
-import { UserLoginInput, UserRegisterInput } from './user.inputs';
+import { UserRegisterInput } from './user.inputs';
 
 @Controller('users')
 export class UserController {
@@ -31,20 +32,22 @@ export class UserController {
 
     @Get('/login')
     @HttpCode(HttpStatus.OK)
-    async login(@Body() body: UserLoginInput): Promise<User | null> {
-        const user = await this.userService.findOneByCredentials(body);
+    async login(@Query('login') login: string, @Query('password') password: string): Promise<Pick<User, 'login'> | null> {
+        const user = await this.userService.findOneByCredentials({ login, password });
 
         if (!user) {
             throw new BadRequestException('Invalid credentials.');
         }
 
-        return user;
+        return { login: user.login };
     }
 
     @Post('/register')
     @HttpCode(HttpStatus.CREATED)
-    async register(@Body() body: UserRegisterInput): Promise<User> {
-        return await this.userService.createOne(body);
+    async register(@Body() body: UserRegisterInput): Promise<Pick<User, 'login'>> {
+        const user = await this.userService.createOne(body);
+        
+        return { login: user.login }
     }
 
     // ================================================================================================================
