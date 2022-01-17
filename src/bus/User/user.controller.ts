@@ -10,6 +10,7 @@ import {
     BadRequestException,
     Param,
     Query,
+    Res
 } from '@nestjs/common';
 
 // Entities
@@ -21,6 +22,9 @@ import { UserService } from './user.service';
 // Instruments
 import { UserRegisterInput } from './user.inputs';
 
+// Types
+import { Response } from 'express'
+
 @Controller('users')
 export class UserController {
     // eslint-disable-next-line max-params
@@ -29,25 +33,27 @@ export class UserController {
     ) {}
 
     // ================================================================================================================
-
+    
     @Get('/login')
     @HttpCode(HttpStatus.OK)
-    async login(@Query('login') login: string, @Query('password') password: string): Promise<Pick<User, 'login'> | null> {
+    async login(@Query('login') login: string, @Query('password') password: string, @Res() response: Response) {
         const user = await this.userService.findOneByCredentials({ login, password });
 
         if (!user) {
             throw new BadRequestException('Invalid credentials.');
         }
 
-        return { login: user.login };
+        response.cookie('logged', true, { maxAge: 86400000 })
+        response.send({ id: user._id, login: user.login })
     }
 
     @Post('/register')
     @HttpCode(HttpStatus.CREATED)
-    async register(@Body() body: UserRegisterInput): Promise<Pick<User, 'login'>> {
+    async register(@Body() body: UserRegisterInput, @Res() response: Response) {
         const user = await this.userService.createOne(body);
-        
-        return { login: user.login }
+
+        response.cookie('logged', true, { maxAge: 86400000 })
+        response.send({ id: user._id, login: user.login })
     }
 
     // ================================================================================================================

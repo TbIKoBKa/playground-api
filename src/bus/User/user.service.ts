@@ -4,7 +4,7 @@ import { InjectModel } from '@nestjs/mongoose';
 import { Model } from 'mongoose';
 
 // Instruments
-import { User, UserDocument } from './user.entity';
+import { UserDocument } from './user.entity';
 import { UserLoginInput, UserRegisterInput } from './user.inputs';
 
 const decodePassword = (password: string): string => Buffer.from(password).toString('base64');
@@ -15,7 +15,7 @@ export class UserService {
 
     // ================================================================================================================
 
-    async createOne({ login, password }: UserRegisterInput): Promise<User> {
+    async createOne({ login, password }: UserRegisterInput): Promise<UserDocument> {
         const newUser = new this.userModel({ login, password: decodePassword(password) });
 
         return await newUser.save();
@@ -23,13 +23,13 @@ export class UserService {
 
     // ================================================================================================================
 
-    async findAll(): Promise<User[]> {
+    async findAll(): Promise<UserDocument[]> {
         return await this.userModel.find();
     }
 
     // ================================================================================================================
 
-    async findById(userId: string): Promise<User | null> {
+    async findById(userId: string): Promise<UserDocument | null> {
         const user = await this.userModel.findById(userId);
 
         return user;
@@ -37,7 +37,7 @@ export class UserService {
 
     // ================================================================================================================
 
-    async findOneByCredentials({ login, password }: UserLoginInput): Promise<User | null> {
+    async findOneByCredentials({ login, password }: UserLoginInput): Promise<UserDocument | null> {
         const user = await this.userModel.findOne({ login, password: decodePassword(password) });
 
         return user;
